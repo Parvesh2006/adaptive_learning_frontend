@@ -498,9 +498,9 @@ export function LandingPage() {
             <div>
               <p className="mb-3 text-sm font-semibold text-charcoal-900">Legal & Contact</p>
               <ul className="space-y-2 text-sm text-clay-600">
-                <li><button className="hover:text-charcoal-900">Privacy</button></li>
-                <li><button className="hover:text-charcoal-900">Terms</button></li>
-                <li><button className="hover:text-charcoal-900">Contact</button></li>
+                <li><a href="#features" className="hover:text-charcoal-900">Privacy</a></li>
+                <li><a href="#how-it-works" className="hover:text-charcoal-900">Terms</a></li>
+                <li><a href="#tutor" className="hover:text-charcoal-900">Contact</a></li>
               </ul>
             </div>
           </div>

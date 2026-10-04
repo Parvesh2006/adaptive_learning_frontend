@@ -1,25 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
   Send,
   Paperclip,
   Mic,
-  Search,
   Brain,
   CheckCircle2,
   ArrowRight,
   Sparkles,
-  FileText,
-  Video,
-  Presentation,
-  BookOpen,
+  Bookmark,
+  MessageSquare,
+  X,
 } from 'lucide-react';
 import { ClayCard } from '@/components/clay/ClayCard';
 import { ClayButton } from '@/components/clay/ClayButton';
+import { ClayBadge } from '@/components/clay/ClayBadge';
 import { ClayDrawer } from '@/components/clay/ClayTabs';
 import { useTutor } from '@/hooks/useTutor';
-import { AIMessage, UserMessage, TypingIndicator, SourceCitationList, SourcePreviewContent } from '@/components/tutor/MessageComponents';
+import { AIMessage, UserMessage, TypingIndicator, SourcePreviewContent } from '@/components/tutor/MessageComponents';
 import { LoadingState } from '@/components/ui/States';
 import type { SourceCitation } from '@/types';
 
@@ -41,6 +40,9 @@ export function TutorPage() {
   const [input, setInput] = useState('');
   const [selectedCitation, setSelectedCitation] = useState<SourceCitation | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showConversations, setShowConversations] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -61,7 +63,28 @@ export function TutorPage() {
 
   const handleCitationClick = (c: SourceCitation) => {
     setSelectedCitation(c);
+    setBookmarked(false);
     setDrawerOpen(true);
+  };
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  const handleBookmark = () => {
+    setBookmarked(true);
+    showToast('Source bookmarked');
+  };
+
+  const handleNewConversation = () => {
+    newConversation();
+    setShowConversations(false);
+  };
+
+  const handleSelectConversation = (id: string) => {
+    selectConversation(id);
+    setShowConversations(false);
   };
 
   if (loading) return <LoadingState label="Loading conversations..." />;
@@ -69,10 +92,10 @@ export function TutorPage() {
   return (
     <div className="mx-auto max-w-7xl">
       <div className="grid h-[calc(100vh-12rem)] grid-cols-1 gap-4 lg:grid-cols-[280px_1fr_280px]">
-        {/* Conversation List */}
+        {/* Conversation List - Desktop */}
         <ClayCard className="hidden flex-col overflow-hidden p-0 lg:flex">
           <div className="border-b border-ivory-200 p-4">
-            <ClayButton size="sm" fullWidth onClick={newConversation}>
+            <ClayButton size="sm" fullWidth onClick={handleNewConversation}>
               <Plus size={16} className="mr-1 inline" />
               New Conversation
             </ClayButton>
@@ -81,7 +104,7 @@ export function TutorPage() {
             {conversations.map((conv) => (
               <button
                 key={conv.id}
-                onClick={() => selectConversation(conv.id)}
+                onClick={() => handleSelectConversation(conv.id)}
                 className={`mb-1 w-full rounded-clay p-3 text-left transition-all ${
                   activeConversation?.id === conv.id
                     ? 'bg-violet-50 shadow-clay-raised'
@@ -101,6 +124,13 @@ export function TutorPage() {
           {/* Header */}
           <div className="flex items-center justify-between border-b border-ivory-200 p-4">
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowConversations(true)}
+                className="rounded-clay p-1.5 text-clay-500 hover:bg-ivory-100 lg:hidden"
+                aria-label="Show conversations"
+              >
+                <MessageSquare size={18} />
+              </button>
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-100">
                 <Brain size={16} className="text-violet-600" />
               </div>
@@ -155,7 +185,11 @@ export function TutorPage() {
           {/* Input */}
           <div className="border-t border-ivory-200 p-4">
             <div className="flex items-end gap-2 rounded-clay-lg bg-ivory-100 p-2 shadow-clay-pressed">
-              <button className="rounded-clay p-2 text-clay-500 hover:bg-ivory-200" aria-label="Attach file">
+              <button
+                className="rounded-clay p-2 text-clay-500 hover:bg-ivory-200"
+                aria-label="Attach file"
+                onClick={() => showToast('File attachment coming soon')}
+              >
                 <Paperclip size={18} />
               </button>
               <textarea
@@ -171,7 +205,11 @@ export function TutorPage() {
                 rows={1}
                 className="flex-1 resize-none bg-transparent px-2 py-2 text-sm text-charcoal-800 placeholder:text-clay-400 focus:outline-none"
               />
-              <button className="rounded-clay p-2 text-clay-500 hover:bg-ivory-200" aria-label="Voice input">
+              <button
+                className="rounded-clay p-2 text-clay-500 hover:bg-ivory-200"
+                aria-label="Voice input"
+                onClick={() => showToast('Voice input coming soon')}
+              >
                 <Mic size={18} />
               </button>
               <ClayButton size="sm" onClick={handleSend} disabled={!input.trim() || sending}>
@@ -250,22 +288,53 @@ export function TutorPage() {
             citation={selectedCitation}
             onOpen={() => {
               setDrawerOpen(false);
+              showToast('Opening source document...');
             }}
-            onBookmark={() => {}}
+            onBookmark={handleBookmark}
           />
         )}
       </ClayDrawer>
-    </div>
-  );
-}
 
-function ClayBadge({ children, variant, className }: { children: React.ReactNode; variant: 'success'; className?: string }) {
-  const styles = {
-    success: 'bg-mint-100 text-mint-500',
-  };
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold shadow-clay-sm ${styles[variant]} ${className || ''}`}>
-      {children}
-    </span>
+      {/* Mobile Conversation Drawer */}
+      <ClayDrawer open={showConversations} onClose={() => setShowConversations(false)} title="Conversations">
+        <div className="mb-4">
+          <ClayButton size="sm" fullWidth onClick={handleNewConversation}>
+            <Plus size={16} className="mr-1 inline" />
+            New Conversation
+          </ClayButton>
+        </div>
+        <div className="space-y-2">
+          {conversations.map((conv) => (
+            <button
+              key={conv.id}
+              onClick={() => handleSelectConversation(conv.id)}
+              className={`w-full rounded-clay p-3 text-left transition-all ${
+                activeConversation?.id === conv.id
+                  ? 'bg-violet-50 shadow-clay-raised'
+                  : 'hover:bg-ivory-100'
+              }`}
+            >
+              <p className="truncate text-sm font-medium text-charcoal-900">{conv.title}</p>
+              <p className="mt-0.5 truncate text-xs text-clay-500">{conv.lastMessage}</p>
+              <p className="mt-0.5 text-xs text-clay-400">{conv.timestamp}</p>
+            </button>
+          ))}
+        </div>
+      </ClayDrawer>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 rounded-clay bg-charcoal-900 px-4 py-2.5 text-sm text-white shadow-clay-xl lg:bottom-8"
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

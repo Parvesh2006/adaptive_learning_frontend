@@ -28,11 +28,16 @@ export function Topbar({ onMenuClick, title }: TopbarProps) {
   const navigate = useNavigate();
   const { query, setQuery, results, searching, isOpen, setIsOpen } = useGlobalSearch();
   const searchRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const [showNotifs, setShowNotifs] = useState(false);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setIsOpen(false);
+      }
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifs(false);
       }
     };
     document.addEventListener('mousedown', handler);
@@ -44,6 +49,12 @@ export function Topbar({ onMenuClick, title }: TopbarProps) {
     setIsOpen(false);
     setQuery('');
   };
+
+  const notifications = [
+    { id: 'n1', title: 'Assessment completed', desc: 'You scored 80% on Neural Networks', route: '/assessment/a1/result', color: '#5AAB86' },
+    { id: 'n2', title: 'New revision recommendation', desc: 'Backpropagation needs reinforcement', route: '/revision', color: '#E2795C' },
+    { id: 'n3', title: '12-day streak achieved', desc: 'Keep up the great work!', route: '/progress', color: '#E0B23E' },
+  ];
 
   return (
     <header className="sticky top-0 z-20 flex items-center gap-4 border-b border-ivory-200 bg-ivory-50/80 px-4 py-3 backdrop-blur-md lg:px-8">
@@ -123,10 +134,50 @@ export function Topbar({ onMenuClick, title }: TopbarProps) {
         </AnimatePresence>
       </div>
 
-      <button className="relative rounded-clay bg-clay-50 p-2.5 shadow-clay-sm hover:shadow-clay">
-        <Bell size={18} className="text-charcoal-700" />
-        <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-peach-400" />
-      </button>
+      <div ref={notifRef} className="relative">
+        <button
+          onClick={() => setShowNotifs(!showNotifs)}
+          className="relative rounded-clay bg-clay-50 p-2.5 shadow-clay-sm hover:shadow-clay"
+          aria-label="Notifications"
+        >
+          <Bell size={18} className="text-charcoal-700" />
+          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-peach-400" />
+        </button>
+        <AnimatePresence>
+          {showNotifs && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.15 }}
+              className="absolute right-0 top-full mt-2 w-80 rounded-clay-lg bg-clay-50 p-3 shadow-clay-xl"
+            >
+              <p className="mb-2 px-2 text-sm font-semibold text-charcoal-900">Notifications</p>
+              <div className="space-y-1">
+                {notifications.map((n) => (
+                  <button
+                    key={n.id}
+                    onClick={() => {
+                      navigate(n.route);
+                      setShowNotifs(false);
+                    }}
+                    className="flex w-full items-start gap-3 rounded-clay p-3 text-left hover:bg-ivory-100"
+                  >
+                    <div
+                      className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: n.color }}
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-charcoal-900">{n.title}</p>
+                      <p className="text-xs text-clay-500">{n.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </header>
   );
 }

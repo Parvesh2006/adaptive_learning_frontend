@@ -79,42 +79,52 @@ export function DocumentViewerPage() {
       </div>
 
       <div className="space-y-3">
-        {filteredSections?.map((section, i) => (
-          <motion.div
-            key={section.id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-          >
-            <ClayCard
-              hover
-              className={activeSection === section.id ? 'ring-2 ring-violet-300' : ''}
-              onClick={() => setActiveSection(activeSection === section.id ? null : section.id)}
+        {filteredSections && filteredSections.length > 0 ? (
+          filteredSections.map((section, i) => (
+            <motion.div
+              key={section.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
             >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-charcoal-900">{section.title}</h3>
-                  {section.page && <span className="text-xs text-clay-500">Page {section.page}</span>}
-                  {section.timestamp && <span className="text-xs text-clay-500">{section.timestamp}</span>}
+              <ClayCard
+                hover
+                className={activeSection === section.id ? 'ring-2 ring-violet-300' : ''}
+                onClick={() => setActiveSection(activeSection === section.id ? null : section.id)}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-charcoal-900">{section.title}</h3>
+                    {section.page && <span className="text-xs text-clay-500">Page {section.page}</span>}
+                    {section.timestamp && <span className="text-xs text-clay-500">{section.timestamp}</span>}
+                  </div>
+                  <ClayBadge variant="info">
+                    <Highlighter size={12} />
+                    Source
+                  </ClayBadge>
                 </div>
-                <ClayBadge variant="info">
-                  <Highlighter size={12} />
-                  Source
-                </ClayBadge>
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-charcoal-700">{section.content}</p>
-              {section.highlights && section.highlights.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {section.highlights.map((h) => (
-                    <span key={h} className="rounded-full bg-warmyellow-100 px-2.5 py-0.5 text-xs font-medium text-warmyellow-600">
-                      {h}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </ClayCard>
-          </motion.div>
-        ))}
+                <p className="mt-3 text-sm leading-relaxed text-charcoal-700">{section.content}</p>
+                {section.highlights && section.highlights.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {section.highlights.map((h) => (
+                      <span key={h} className="rounded-full bg-warmyellow-100 px-2.5 py-0.5 text-xs font-medium text-warmyellow-600">
+                        {h}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </ClayCard>
+            </motion.div>
+          ))
+        ) : (
+          search.length > 0 && (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-clay-lg border-2 border-dashed border-clay-300 bg-clay-50/50 p-12 text-center">
+              <Search size={28} className="text-clay-400" />
+              <p className="text-sm font-medium text-charcoal-900">No matching sections found</p>
+              <p className="text-sm text-clay-500">Try a different search term.</p>
+            </div>
+          )
+        )}
       </div>
     </div>
   );

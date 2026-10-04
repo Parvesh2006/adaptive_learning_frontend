@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { User, GraduationCap, Bell, Palette, Shield, LogOut, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, GraduationCap, Bell, Palette, Shield, LogOut, Check, Brain } from 'lucide-react';
 import { ClayCard } from '@/components/clay/ClayCard';
 import { ClayButton } from '@/components/clay/ClayButton';
 import { ClayInput } from '@/components/clay/ClayInput';
@@ -16,6 +16,9 @@ export function SettingsPage() {
   const [notifications, setNotifications] = useState({ daily: true, email: false, weekly: true });
   const [theme, setTheme] = useState('light');
   const [privacy, setPrivacy] = useState({ analytics: true, shareProgress: false });
+  const [savedToast, setSavedToast] = useState(false);
+  const [explanationStyle, setExplanationStyle] = useState('simplified');
+  const [pace, setPace] = useState('medium');
 
   const sections = [
     { id: 'account', label: 'Account', icon: User },
@@ -28,6 +31,11 @@ export function SettingsPage() {
   const handleLogout = async () => {
     await logout();
     navigate('/');
+  };
+
+  const showSaved = () => {
+    setSavedToast(true);
+    setTimeout(() => setSavedToast(false), 2000);
   };
 
   return (
@@ -72,7 +80,7 @@ export function SettingsPage() {
               <ClayInput label="Full Name" defaultValue={user?.name || 'Alex Chen'} />
               <ClayInput label="Email" type="email" defaultValue={user?.email || 'alex@example.com'} />
               <ClayInput label="Bio" defaultValue="CS student passionate about machine learning and AI." />
-              <ClayButton>Save Changes</ClayButton>
+              <ClayButton onClick={showSaved}>Save Changes</ClayButton>
             </ClayCard>
           )}
 
@@ -87,8 +95,8 @@ export function SettingsPage() {
                     { id: 'detailed', label: 'Detailed' },
                     { id: 'technical', label: 'Technical' },
                   ]}
-                  activeTab="simplified"
-                  onChange={() => {}}
+                  activeTab={explanationStyle}
+                  onChange={setExplanationStyle}
                 />
               </div>
               <div>
@@ -99,11 +107,11 @@ export function SettingsPage() {
                     { id: 'medium', label: 'Medium' },
                     { id: 'fast', label: 'Fast' },
                   ]}
-                  activeTab="medium"
-                  onChange={() => {}}
+                  activeTab={pace}
+                  onChange={setPace}
                 />
               </div>
-              <ClayButton>Save Preferences</ClayButton>
+              <ClayButton onClick={showSaved}>Save Preferences</ClayButton>
             </ClayCard>
           )}
 
@@ -147,15 +155,39 @@ export function SettingsPage() {
                     key={t}
                     onClick={() => setTheme(t)}
                     className={cn(
-                      'flex flex-col items-center gap-2 rounded-clay p-6 transition-all',
+                      'flex flex-col items-center gap-2 rounded-clay p-4 transition-all',
                       theme === t ? 'bg-violet-50 ring-2 ring-violet-400' : 'bg-ivory-100 hover:bg-ivory-200'
                     )}
                   >
-                    <div className={cn('h-12 w-12 rounded-clay', t === 'light' ? 'bg-ivory-100' : t === 'dark' ? 'bg-charcoal-900' : 'bg-gradient-to-br from-ivory-100 to-charcoal-900')} />
+                    <div className={cn('h-12 w-12 rounded-clay shadow-clay-sm', t === 'light' ? 'bg-ivory-100' : t === 'dark' ? 'bg-charcoal-900' : 'bg-gradient-to-br from-ivory-100 to-charcoal-900')} />
                     <span className={cn('text-sm font-medium capitalize', theme === t ? 'text-violet-700' : 'text-charcoal-700')}>{t}</span>
                   </button>
                 ))}
               </div>
+              <div className="rounded-clay bg-ivory-100 p-4 shadow-clay-pressed">
+                <p className="mb-3 text-sm font-semibold text-charcoal-900">Preview</p>
+                <div className={cn(
+                  'rounded-clay p-4 transition-all',
+                  theme === 'dark' ? 'bg-charcoal-900' : theme === 'auto' ? 'bg-gradient-to-br from-ivory-50 to-charcoal-900' : 'bg-ivory-50'
+                )}>
+                  <div className="mb-2 flex items-center gap-2">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-clay bg-violet-600">
+                      <Brain size={12} className="text-white" />
+                    </div>
+                    <span className={cn('text-xs font-bold', theme === 'light' ? 'text-charcoal-900' : 'text-white')}>AI Study Companion</span>
+                  </div>
+                  <div className={cn('mb-2 rounded-clay p-2', theme === 'light' ? 'bg-white shadow-clay-sm' : 'bg-white/10')}>
+                    <div className={cn('mb-1 text-xs font-semibold', theme === 'light' ? 'text-charcoal-900' : 'text-white')}>Neural Networks</div>
+                    <div className="h-1.5 w-full rounded-full bg-violet-200">
+                      <div className="h-full w-3/4 rounded-full bg-violet-500" />
+                    </div>
+                  </div>
+                  <div className={cn('inline-block rounded-full px-3 py-1 text-xs font-semibold', theme === 'light' ? 'bg-violet-100 text-violet-700' : 'bg-violet-500/20 text-violet-300')}>
+                    92% Mastery
+                  </div>
+                </div>
+              </div>
+              <ClayButton onClick={showSaved}>Save Appearance</ClayButton>
             </ClayCard>
           )}
 
@@ -190,6 +222,20 @@ export function SettingsPage() {
           )}
         </motion.div>
       </div>
+
+      <AnimatePresence>
+        {savedToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2 rounded-clay bg-mint-500 px-4 py-2.5 text-sm text-white shadow-clay-xl lg:bottom-8"
+          >
+            <Check size={16} />
+            Saved successfully
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

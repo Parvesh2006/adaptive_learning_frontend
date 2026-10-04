@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, TrendingUp, TrendingDown, Sparkles, ArrowRight, Check, AlertCircle } from 'lucide-react';
+import { X, Sparkles, ArrowRight, Check, AlertCircle } from 'lucide-react';
 import { ClayCard } from '@/components/clay/ClayCard';
 import { ClayButton } from '@/components/clay/ClayButton';
 import { ClayProgress } from '@/components/clay/ClayProgress';
@@ -19,9 +19,11 @@ export function AssessmentQuizPage() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [questionNumber, setQuestionNumber] = useState(0);
 
-  if (!session && !loading) {
-    start();
-  }
+  useEffect(() => {
+    if (!session && !loading) {
+      start();
+    }
+  }, [session, loading, start]);
 
   if (loading || !session) return <LoadingState label="Starting assessment..." />;
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Play, Pause, FileText, Video, Presentation, BookOpen, Brain, Send, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Play, Pause, FileText, Video, Presentation, BookOpen, Brain, Send } from 'lucide-react';
 import { ClayCard } from '@/components/clay/ClayCard';
 import { ClayBadge } from '@/components/clay/ClayBadge';
 import { ClayButton } from '@/components/clay/ClayButton';

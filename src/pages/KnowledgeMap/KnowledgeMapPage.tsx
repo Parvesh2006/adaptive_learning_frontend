@@ -59,7 +59,7 @@ export function KnowledgeMapPage() {
 
       {/* Graph */}
       <ClayCard className="relative overflow-hidden p-0">
-        <div className="relative h-[500px] w-full" style={{ minHeight: '500px' }}>
+        <div className="relative h-[560px] w-full overflow-hidden sm:h-[520px]" style={{ minHeight: '400px' }}>
           <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0">
             {/* Edges */}
             {mockKnowledgeGraph.edges.map((edge, i) => {
@@ -86,19 +86,21 @@ export function KnowledgeMapPage() {
           {/* Nodes */}
           {mockKnowledgeGraph.nodes.map((node, i) => {
             const colors = masteryColors(node.mastery);
+            const clampedX = Math.max(14, Math.min(86, node.x));
+            const clampedY = Math.max(10, Math.min(90, node.y));
             return (
               <motion.button
                 key={node.id}
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.05, type: 'spring', stiffness: 300, damping: 20 }}
-                whileHover={{ scale: 1.1 }}
+                whileHover={{ scale: 1.1, zIndex: 20 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleNodeClick(node)}
                 className="absolute flex flex-col items-center gap-1"
                 style={{
-                  left: `${node.x}%`,
-                  top: `${node.y}%`,
+                  left: `${clampedX}%`,
+                  top: `${clampedY}%`,
                   transform: 'translate(-50%, -50%)',
                 }}
               >
@@ -107,11 +109,10 @@ export function KnowledgeMapPage() {
                   style={{
                     backgroundColor: colors.bg,
                     border: `2px solid ${colors.stroke}`,
-                    padding: '8px 14px',
-                    minWidth: '80px',
+                    padding: '6px 10px',
                   }}
                 >
-                  <span className="text-xs font-semibold text-charcoal-900 whitespace-nowrap">{node.label}</span>
+                  <span className="text-[11px] font-semibold text-charcoal-900 whitespace-nowrap sm:text-xs">{node.label}</span>
                 </div>
                 <span
                   className="rounded-full px-2 py-0.5 text-[10px] font-bold text-white"
