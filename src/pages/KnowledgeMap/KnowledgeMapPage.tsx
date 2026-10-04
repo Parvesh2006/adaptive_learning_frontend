@@ -59,22 +59,24 @@ export function KnowledgeMapPage() {
 
       {/* Graph */}
       <ClayCard className="relative overflow-hidden p-0">
-        <div className="relative h-[560px] w-full overflow-hidden sm:h-[520px]" style={{ minHeight: '400px' }}>
+        <div className="relative h-[600px] w-full overflow-hidden sm:h-[560px]" style={{ minHeight: '450px' }}>
           <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0">
-            {/* Edges */}
+            {/* Edges — orthogonal elbow connectors */}
             {mockKnowledgeGraph.edges.map((edge, i) => {
               const from = mockKnowledgeGraph.nodes.find((n) => n.id === edge.from);
               const to = mockKnowledgeGraph.nodes.find((n) => n.id === edge.to);
               if (!from || !to) return null;
+              const midY = (from.y + to.y) / 2;
+              const path = `M ${from.x} ${from.y} L ${from.x} ${midY} L ${to.x} ${midY} L ${to.x} ${to.y}`;
               return (
-                <motion.line
+                <motion.path
                   key={i}
-                  x1={from.x}
-                  y1={from.y}
-                  x2={to.x}
-                  y2={to.y}
+                  d={path}
+                  fill="none"
                   stroke="#D4CAB4"
-                  strokeWidth="0.3"
+                  strokeWidth="0.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   initial={{ pathLength: 0, opacity: 0 }}
                   animate={{ pathLength: 1, opacity: 1 }}
                   transition={{ delay: i * 0.05, duration: 0.5 }}
@@ -86,8 +88,8 @@ export function KnowledgeMapPage() {
           {/* Nodes */}
           {mockKnowledgeGraph.nodes.map((node, i) => {
             const colors = masteryColors(node.mastery);
-            const clampedX = Math.max(14, Math.min(86, node.x));
-            const clampedY = Math.max(10, Math.min(90, node.y));
+            const clampedX = Math.max(8, Math.min(92, node.x));
+            const clampedY = Math.max(6, Math.min(94, node.y));
             return (
               <motion.button
                 key={node.id}
